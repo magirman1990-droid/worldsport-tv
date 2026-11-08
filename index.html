@@ -168,7 +168,7 @@ render();
   <label for="sport-filter">🏆 Choose sport:</label>
   <select id="sport-filter" style="padding:12px;width:100%;margin-top:8px;border-radius:8px;background:#171d29;color:white;">
     <option value="Football">Football</option>
-    <option value="Basketball">Basketball (Coming soon)</option>
+    <option value="Basketball">Basketball</option>
     <option value="Tennis">Tennis (Coming soon)</option>
     <option value="Formula 1">Formula 1 (Coming soon)</option>
     <option value="Ice Hockey">Ice Hockey (Coming soon)</option>
@@ -293,6 +293,45 @@ applyCountryFilter();
 }
 
 loadMatches();
+  async function loadBasketballMatches() {
+  const loading = document.getElementById("match-loading");
+  const list = document.getElementById("match-list");
+
+  try {
+    const response = await fetch("/.netlify/functions/basketball");
+    if (!response.ok) throw new Error("Basketball unavailable");
+
+    const data = await response.json();
+    list.innerHTML = "";
+    loading.textContent = "";
+
+    (data.matches || []).forEach(match => {
+      const card = document.createElement("div");
+      card.className = "match-card";
+
+      const date = new Date(match.time).toLocaleString();
+      const score = match.home_score + " - " + match.away_score;
+
+      card.innerHTML = `
+        <div class="league">🏀 ${match.competition}</div>
+        <div class="teams">${match.home} ${score} ${match.away}</div>
+        <div class="details">${date} · ${match.status_text}</div>
+      `;
+
+      list.appendChild(card);
+    });
+  } catch (error) {
+    loading.textContent = "Basketball data unavailable.";
+  }
+}
+
+document.getElementById("sport-filter").addEventListener("change", function() {
+  if (this.value === "Basketball") {
+    loadBasketballMatches();
+  } else if (this.value === "Football") {
+    loadMatches();
+  }
+});
 </script>
 </body>
 </html>

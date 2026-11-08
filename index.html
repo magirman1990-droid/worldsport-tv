@@ -320,6 +320,8 @@ if (!controls) {
 }
 
 controls.innerHTML = `
+  <input id="basket-search" placeholder="Search teams, leagues or countries">
+  <button id="basket-search-btn">Search</button>
   <select id="basket-country">
     <option value="all">All countries</option>
     ${countries.map(c => `<option value="${c}">${c}</option>`).join("")}
@@ -332,20 +334,34 @@ controls.innerHTML = `
 
 const countrySelect = document.getElementById("basket-country");
 const leagueSelect = document.getElementById("basket-league");
+const searchInput = document.getElementById("basket-search");
 
 countrySelect.value = selectedCountry;
 leagueSelect.value = selectedLeague;
+searchInput.value = searchTerm;
 
 countrySelect.onchange = () =>
-  loadBasketballMatches(countrySelect.value, leagueSelect.value);
+  loadBasketballMatches(countrySelect.value, leagueSelect.value, searchInput.value);
 
 leagueSelect.onchange = () =>
-  loadBasketballMatches(countrySelect.value, leagueSelect.value);
+  loadBasketballMatches(countrySelect.value, leagueSelect.value, searchInput.value);
 
-const filteredMatches = matches.filter(m =>
-  (selectedCountry === "all" || m.country === selectedCountry) &&
-  (selectedLeague === "all" || m.competition === selectedLeague)
-);
+document.getElementById("basket-search-btn").onclick = () =>
+  loadBasketballMatches(countrySelect.value, leagueSelect.value, searchInput.value);
+
+const filteredMatches = matches.filter(m => {
+  const term = searchTerm.toLowerCase();
+
+  return (
+    (selectedCountry === "all" || m.country === selectedCountry) &&
+    (selectedLeague === "all" || m.competition === selectedLeague) &&
+    (!term ||
+      m.home.toLowerCase().includes(term) ||
+      m.away.toLowerCase().includes(term) ||
+      m.competition.toLowerCase().includes(term) ||
+      m.country.toLowerCase().includes(term))
+  );
+});
     const liveStatuses = ["Q1", "Q2", "Q3", "Q4", "OT", "HT", "BT"];
 
     const liveMatches = filteredMatches.filter(match =>

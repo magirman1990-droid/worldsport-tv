@@ -294,6 +294,7 @@ applyCountryFilter();
 
 loadMatches();
   
+
 async function loadBasketballMatches() {
   const loading = document.getElementById("match-loading");
   const list = document.getElementById("match-list");
@@ -303,95 +304,115 @@ async function loadBasketballMatches() {
 
   try {
     const response = await fetch("/.netlify/functions/basketball");
-
-    if (!response.ok) {
-      throw new Error("Basketball API unavailable");
-    }
+    if (!response.ok) throw new Error("API unavailable");
 
     const data = await response.json();
-    const groups = {};
+    const matches = data.matches || [];
 
-    (data.matches || []).forEach(match => {
-      const country = match.country || "Other countries";
-      const flag = match.flag || "🌍";
+    const liveStatuses = ["Q1", "Q2", "Q3", "Q4", "OT", "HT", "BT"];
 
-      if (!groups[country]) {
-        groups[country] = {
-          flag: flag,
-          matches: []
-        };
-      }
+    const liveMatches = matches.filter(match =>
+      liveStatuses.includes(String(match.status).toUpperCase())
+    );
 
-      groups[country].matches.push(match);
-    });
+    const upcomingMatches = matches.filter(match =>
+      String(match.status).toUpperCase() === "NS"
+    );
 
-    list.innerHTML = "";
-    loading.textContent = "";
+    function renderSection(title, sectionMatches, live) {
+      if (sectionMatches.length === 0) return;
 
-    if (!data.matches || data.matches.length === 0) {
-      loading.textContent = "No basketball matches found.";
-      return;
-    }
+      const titleElement = document.createElement("h2");
+      titleElement.textContent = title;
+      list.appendChild(titleElement);
 
-    Object.keys(groups).sort().forEach(country => {
-      const section = document.createElement("section");
+      const groups = {};
 
-      const heading = document.createElement("h2");
-      const flag = document.createElement("img");
-flag.src = groups[country].flag;
-flag.alt = country;
-flag.width = 24;
-flag.style.verticalAlign = "middle";
-flag.style.marginRight = "8px";
+      sectionMatches.forEach(match => {
+        const country = match.country || "Other countries";
 
-heading.appendChild(flag);
-heading.appendChild(document.createTextNode(country));
-      section.appendChild(heading);
+        if (!groups[country]) {
+          groups[country] = {
+            flag: match.flag || "",
+            matches: []
+          };
+        }
 
-      groups[country].matches
-        .sort((a, b) => new Date(a.time) - new Date(b.time))
-        .forEach(match => {
+        groups[country].matches.push(match);
+      });
+
+      Object.keys(groups).sort().forEach(country => {
+        const section = document.createElement("section");
+        const heading = document.createElement("h3");
+
+        if (groups[country].flag) {
+          const flag = document.createElement("img");
+          flag.src = groups[country].flag;
+          flag.alt = country;
+          flag.width = 24;
+          flag.style.verticalAlign = "middle";
+          flag.style.marginRight = "8px";
+          heading.appendChild(flag);
+        }
+
+        heading.appendChild(document.createTextNode(country));
+        section.appendChild(heading);
+
+        groups[country].matches.forEach(match => {
           const card = document.createElement("div");
           card.className = "match-card";
 
           const league = document.createElement("div");
           league.className = "league";
-          league.textContent = "🏀 " + (match.competition || "Basketball");
+          league.textContent = "🏀 " + match.competition;
 
           const teams = document.createElement("div");
           teams.className = "teams";
 
-          const homeScore = match.home_score ?? "-";
-          const awayScore = match.away_score ?? "-";
-
           teams.textContent =
-            match.home + " " + homeScore + " - " +
-            awayScore + " " + match.away;
+            match.home + " " +
+            (match.home_score ?? "-") + " - " +
+            (match.away_score ?? "-") + " " +
+            match.away;
 
           const details = document.createElement("div");
           details.className = "details";
 
-          const date = match.time
-            ? new Date(match.time).toLocaleString()
-            : "";
-
           details.textContent =
-            date + " · " + (match.status_text || match.status || "");
+            new Date(match.time).toLocaleString() +
+            " · " + (match.status_text || match.status);
 
           card.appendChild(league);
           card.appendChild(teams);
           card.appendChild(details);
+
+          if (live) {
+            card.style.borderLeft = "4px solid red";
+          }
+
           section.appendChild(card);
         });
 
-      list.appendChild(section);
-    });
+        list.appendChild(section);
+      });
+    }
+
+    list.innerHTML = "";
+    loading.textContent = "";
+
+    renderSection("🔴 LIVE NOW", liveMatches, true);
+    renderSection("🏀 UPCOMING MATCHES", upcomingMatches, false);
+
+    if (liveMatches.length === 0 && upcomingMatches.length === 0) {
+      loading.textContent = "No live or upcoming basketball matches.";
+    }
 
   } catch (error) {
     list.innerHTML = "";
     loading.textContent = "Basketball data unavailable.";
   }
 }
+
   
 
 document.getElementById("sport-filter").addEventListener("change", function() {

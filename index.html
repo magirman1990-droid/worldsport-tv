@@ -295,7 +295,7 @@ applyCountryFilter();
 loadMatches();
   
 
-async function loadBasketballMatches(selectedCountry = "all", selectedLeague = "all") {
+async function loadBasketballMatches(selectedCountry = "all", selectedLeague = "all", searchTerm = "") {
   const loading = document.getElementById("match-loading");
   const list = document.getElementById("match-list");
 

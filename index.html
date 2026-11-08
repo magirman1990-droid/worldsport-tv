@@ -337,7 +337,15 @@ async function loadBasketballMatches() {
       const section = document.createElement("section");
 
       const heading = document.createElement("h2");
-      heading.textContent = groups[country].flag + " " + country;
+      const flag = document.createElement("img");
+flag.src = groups[country].flag;
+flag.alt = country;
+flag.width = 24;
+flag.style.verticalAlign = "middle";
+flag.style.marginRight = "8px";
+
+heading.appendChild(flag);
+heading.appendChild(document.createTextNode(country));
       section.appendChild(heading);
 
       groups[country].matches

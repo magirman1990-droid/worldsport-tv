@@ -240,7 +240,26 @@ const upcomingMatches = activeMatches.filter(match =>
   matches.forEach(match => {
     const card = document.createElement("div");
     card.className = "match-card";
+const favoriteId = match.home + " vs " + match.away;
+const favorites = JSON.parse(localStorage.getItem("worldsportFavorites") || "[]");
 
+const favoriteButton = document.createElement("button");
+favoriteButton.textContent = favorites.includes(favoriteId) ? "⭐ Favorited" : "☆ Favorite";
+
+favoriteButton.onclick = () => {
+  let saved = JSON.parse(localStorage.getItem("worldsportFavorites") || "[]");
+
+  if (saved.includes(favoriteId)) {
+    saved = saved.filter(item => item !== favoriteId);
+  } else {
+    saved.push(favoriteId);
+  }
+
+  localStorage.setItem("worldsportFavorites", JSON.stringify(saved));
+  favoriteButton.textContent = saved.includes(favoriteId) ? "⭐ Favorited" : "☆ Favorite";
+};
+
+card.appendChild(favoriteButton);
     const date = new Date(match.utcDate);
     const dateText = date.toLocaleString();
 

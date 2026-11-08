@@ -2,10 +2,7 @@
 exports.handler = async function () {
   try {
     const apiKey = process.env.BASKETBALL_API_KEY;
-
-    if (!apiKey) {
-      throw new Error("Missing Basketball API key");
-    }
+    if (!apiKey) throw new Error("Missing API key");
 
     const dates = [];
 
@@ -16,21 +13,28 @@ exports.handler = async function () {
     }
 
     const results = await Promise.all(
-      dates.map(date =>
-        fetch(`https://v1.basketball.api-sports.io/games?date=${date}&timezone=Europe/Oslo`, {
-          headers: {
-            "x-apisports-key": apiKey
-          }
-        }).then(response => {
-          if (!response.ok) throw new Error("Basketball API error");
-          return response.json();
-        })
-      )
+      dates.map(async date => {
+        const response = await fetch(
+          `https://v1.basketball.api-sports.io/games?date=${date}&timezone=Europe/Oslo`,
+          { headers: { "x-apisports-key": apiKey } }
+        );
+        return response.json();
+      })
     );
+
+    const apiErrors = results.flatMap(data =>
+      Array.isArray(data.errors)
+        ? data.errors
+        : Object.values(data.errors || {})
+    );
+
+    if (apiErrors.length) {
+      throw new Error(JSON.stringify(apiErrors));
+    }
 
     const matches = results.flatMap(data =>
       (data.response || []).map(item => ({
-        time: item.game.date,
+        time: item.date,
         home: item.teams.home.name,
         away: item.teams.away.name,
         home_score: item.scores.home.total,
@@ -38,8 +42,8 @@ exports.handler = async function () {
         competition: item.league.name,
         country: item.country.name,
         flag: item.country.flag,
-        status: item.game.status.short,
-        status_text: item.game.status.long
+        status: item.status.short,
+        status_text: item.status.long
       }))
     );
 
@@ -52,14 +56,11 @@ exports.handler = async function () {
         matches
       })
     };
-
   } catch (error) {
     return {
       statusCode: 500,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        error: "Basketball data unavailable"
-      })
+      body: JSON.stringify({ error: error.message })
     };
   }
 };

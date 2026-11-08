@@ -7,9 +7,9 @@ exports.handler = async function () {
     const tomorrow = tomorrowDate.toISOString().slice(0, 10);
 
     const urls = [
-      `https://sportscore.com/api/v1/fixtures/?sport=basketball&date=${today}&status=live&limit=50`,
-      `https://sportscore.com/api/v1/fixtures/?sport=basketball&date=${today}&status=upcoming&limit=50`,
-      `https://sportscore.com/api/v1/fixtures/?sport=basketball&date=${tomorrow}&status=upcoming&limit=50`
+      `https://sportscore.com/api/v1/fixtures/?sport=basketball&date=${today}&status=live&limit=200`,
+      `https://sportscore.com/api/v1/fixtures/?sport=basketball&date=${today}&status=upcoming&limit=200`,
+      `https://sportscore.com/api/v1/fixtures/?sport=basketball&date=${tomorrow}&status=upcoming&limit=200`
     ];
 
     const responses = await Promise.all(urls.map(url => fetch(url)));

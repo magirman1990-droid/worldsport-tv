@@ -6,7 +6,7 @@ exports.handler = async function () {
 
     const dates = [];
 
-    for (let i = 0; i < 7; i++) {
+    for (let i = -1; i <= 1; i++) {
       const date = new Date();
       date.setUTCDate(date.getUTCDate() + i);
       dates.push(date.toISOString().slice(0, 10));

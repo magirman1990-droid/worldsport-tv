@@ -2,8 +2,7 @@ exports.handler = async function () {
   try {
     const date = new Date();
     date.setUTCDate(date.getUTCDate() + 1);
-    const tomorrow = date.toISOString().slice(0, 10);
-
+  const tomorrow = "2026-11-09";
     const response = await fetch(
       `https://sportscore.com/api/v1/fixtures/?sport=basketball&date=${tomorrow}&status=upcoming&limit=50`
     );

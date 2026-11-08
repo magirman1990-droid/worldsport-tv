@@ -189,8 +189,10 @@ async function loadMatches() {
     }
 
     loading.textContent = "";
-
-    matches.forEach(match => {
+    const activeMatches = matches.filter(match =>
+  ["TIMED", "IN_PLAY", "PAUSED", "SCHEDULED"].includes(match.status)
+);
+    activeMatches.forEach(match => {
       const card = document.createElement("div");
       card.className = "match-card";
 

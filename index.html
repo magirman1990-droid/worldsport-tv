@@ -295,7 +295,7 @@ applyCountryFilter();
 loadMatches();
   
 
-async function loadBasketballMatches() {
+async function loadBasketballMatches(selectedCountry = "all", selectedLeague = "all") {
   const loading = document.getElementById("match-loading");
   const list = document.getElementById("match-list");
 
@@ -308,14 +308,51 @@ async function loadBasketballMatches() {
 
     const data = await response.json();
     const matches = data.matches || [];
+const countries = [...new Set(matches.map(m => m.country).filter(Boolean))].sort();
+const leagues = [...new Set(matches.map(m => m.competition).filter(Boolean))].sort();
 
+let controls = document.getElementById("basketball-filters");
+
+if (!controls) {
+  controls = document.createElement("div");
+  controls.id = "basketball-filters";
+  list.parentNode.insertBefore(controls, list);
+}
+
+controls.innerHTML = `
+  <select id="basket-country">
+    <option value="all">All countries</option>
+    ${countries.map(c => `<option value="${c}">${c}</option>`).join("")}
+  </select>
+  <select id="basket-league">
+    <option value="all">All leagues</option>
+    ${leagues.map(l => `<option value="${l}">${l}</option>`).join("")}
+  </select>
+`;
+
+const countrySelect = document.getElementById("basket-country");
+const leagueSelect = document.getElementById("basket-league");
+
+countrySelect.value = selectedCountry;
+leagueSelect.value = selectedLeague;
+
+countrySelect.onchange = () =>
+  loadBasketballMatches(countrySelect.value, leagueSelect.value);
+
+leagueSelect.onchange = () =>
+  loadBasketballMatches(countrySelect.value, leagueSelect.value);
+
+const filteredMatches = matches.filter(m =>
+  (selectedCountry === "all" || m.country === selectedCountry) &&
+  (selectedLeague === "all" || m.competition === selectedLeague)
+);
     const liveStatuses = ["Q1", "Q2", "Q3", "Q4", "OT", "HT", "BT"];
 
-    const liveMatches = matches.filter(match =>
+    const liveMatches = filteredMatches.filter(match =>
       liveStatuses.includes(String(match.status).toUpperCase())
     );
 
-    const upcomingMatches = matches.filter(match =>
+    const upcomingMatches = filteredMatches.filter(match =>
       String(match.status).toUpperCase() === "NS"
     );
 

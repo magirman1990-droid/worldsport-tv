@@ -164,6 +164,19 @@ render();
 </style>
 
 <section id="live-matches">
+<div style="margin-bottom:20px;">
+  <label for="country-filter">🌍 Choose country:</label>
+  <select id="country-filter" style="padding:12px;width:100%;margin-top:8px;border-radius:8px;background:#171d29;color:white;">
+    <option value="all">All countries</option>
+    <option value="England">England</option>
+    <option value="Spain">Spain</option>
+    <option value="Italy">Italy</option>
+    <option value="Germany">Germany</option>
+    <option value="France">France</option>
+    <option value="Netherlands">Netherlands</option>
+    <option value="Portugal">Portugal</option>
+  </select>
+</div>
   <p id="match-loading">Loading matches...</p>
   <div id="match-list"></div>
 </section>
@@ -243,9 +256,27 @@ const upcomingMatches = activeMatches.filter(match =>
     list.appendChild(card);
   });
 }
+const countryFilter = document.getElementById("country-filter");
 
-showGroup("🔴 LIVE NOW", liveMatches, true);
-showGroup("📅 UPCOMING MATCHES", upcomingMatches);
+function applyCountryFilter() {
+  const selectedCountry = countryFilter.value;
+
+  const filteredLive = selectedCountry === "all"
+    ? liveMatches
+    : liveMatches.filter(match => match.area?.name === selectedCountry);
+
+  const filteredUpcoming = selectedCountry === "all"
+    ? upcomingMatches
+    : upcomingMatches.filter(match => match.area?.name === selectedCountry);
+
+  list.innerHTML = "";
+
+  showGroup("🔴 LIVE NOW", filteredLive, true);
+  showGroup("📅 UPCOMING MATCHES", filteredUpcoming);
+}
+
+countryFilter.addEventListener("change", applyCountryFilter);
+applyCountryFilter();
   } catch (error) {
     loading.textContent = "Unable to load matches. Please try again later.";
   }

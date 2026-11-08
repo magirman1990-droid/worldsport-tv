@@ -199,36 +199,54 @@ activeMatches.sort((a, b) => {
 });
 
 let currentGroup = "";
-    activeMatches.forEach(match => {
-      const card = document.createElement("div");
-      card.className = "match-card";
+const liveMatches = activeMatches.filter(match =>
+  ["IN_PLAY", "PAUSED"].includes(match.status)
+);
 
-      const date = new Date(match.utcDate);
-      const dateText = date.toLocaleString();
+const upcomingMatches = activeMatches.filter(match =>
+  !["IN_PLAY", "PAUSED"].includes(match.status)
+);
+    function showGroup(title, matches, live = false) {
+  if (matches.length === 0) return;
 
-      const home = match.homeTeam?.name || "Home";
-      const away = match.awayTeam?.name || "Away";
-      const league = match.competition?.name || "";
-      const country = match.area?.name || "";
-      const status = match.status || "";
-const isLive = ["IN_PLAY", "PAUSED"].includes(status);
-      let score = "";
-      if (match.score?.fullTime) {
-        const h = match.score.fullTime.home;
-        const a = match.score.fullTime.away;
-        if (h !== null && a !== null) score = `${h} - ${a}`;
-      }
+  const heading = document.createElement("h2");
+  heading.textContent = title;
+  heading.style.color = live ? "#39ff88" : "white";
+  heading.style.marginTop = "25px";
+  list.appendChild(heading);
 
-      card.innerHTML = `
-      <div class="league">
-  ${isLive ? "🔴 LIVE · " : ""}${league} · ${country}
-</div>
-        <div class="teams">${home} ${score ? score : "vs"} ${away}</div>
-        <div class="details">${dateText} · ${status}</div>
-      `;
+  matches.forEach(match => {
+    const card = document.createElement("div");
+    card.className = "match-card";
 
-      list.appendChild(card);
-    });
+    const date = new Date(match.utcDate);
+    const dateText = date.toLocaleString();
+
+    const home = match.homeTeam?.name || "Home";
+    const away = match.awayTeam?.name || "Away";
+    const league = match.competition?.name || "";
+    const country = match.area?.name || "";
+    const status = match.status || "";
+
+    let score = "";
+    if (match.score?.fullTime) {
+      const h = match.score.fullTime.home;
+      const a = match.score.fullTime.away;
+      if (h !== null && a !== null) score = `${h} - ${a}`;
+    }
+
+    card.innerHTML = `
+      <div class="league">${live ? "🔴 LIVE · " : ""}${league} · ${country}</div>
+      <div class="teams">${home} ${score || "vs"} ${away}</div>
+      <div class="details">${dateText} · ${status}</div>
+    `;
+
+    list.appendChild(card);
+  });
+}
+
+showGroup("🔴 LIVE NOW", liveMatches, true);
+showGroup("📅 UPCOMING MATCHES", upcomingMatches);
   } catch (error) {
     loading.textContent = "Unable to load matches. Please try again later.";
   }

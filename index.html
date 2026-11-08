@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -132,6 +131,99 @@ document.getElementById("events").innerHTML=list.length?list.map(g=>`
 </div>`).join(""):"<p>No events found.</p>";
 }
 render();
+</script>
+<style>
+#live-matches {
+  padding: 20px;
+  color: white;
+}
+#live-matches h2 {
+  color: #39ff88;
+  margin-bottom: 20px;
+}
+.match-card {
+  background: #171d29;
+  border: 1px solid #293447;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 12px;
+}
+.match-card .league {
+  color: #39ff88;
+  font-size: 13px;
+}
+.match-card .teams {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 12px 0;
+}
+.match-card .details {
+  color: #aab4c4;
+  font-size: 13px;
+}
+</style>
+
+<section id="live-matches">
+  <h2>⚽ Upcoming Matches</h2>
+  <p id="match-loading">Loading matches...</p>
+  <div id="match-list"></div>
+</section>
+
+<script>
+async function loadMatches() {
+  const loading = document.getElementById("match-loading");
+  const list = document.getElementById("match-list");
+
+  try {
+    const response = await fetch("/.netlify/functions/matches");
+    if (!response.ok) throw new Error("Could not load matches");
+
+    const data = await response.json();
+    list.innerHTML = "";
+
+    const matches = data.matches || [];
+
+    if (matches.length === 0) {
+      loading.textContent = "No matches found.";
+      return;
+    }
+
+    loading.textContent = "";
+
+    matches.forEach(match => {
+      const card = document.createElement("div");
+      card.className = "match-card";
+
+      const date = new Date(match.utcDate);
+      const dateText = date.toLocaleString();
+
+      const home = match.homeTeam?.name || "Home";
+      const away = match.awayTeam?.name || "Away";
+      const league = match.competition?.name || "";
+      const country = match.area?.name || "";
+      const status = match.status || "";
+
+      let score = "";
+      if (match.score?.fullTime) {
+        const h = match.score.fullTime.home;
+        const a = match.score.fullTime.away;
+        if (h !== null && a !== null) score = `${h} - ${a}`;
+      }
+
+      card.innerHTML = `
+        <div class="league">${league} · ${country}</div>
+        <div class="teams">${home} ${score ? score : "vs"} ${away}</div>
+        <div class="details">${dateText} · ${status}</div>
+      `;
+
+      list.appendChild(card);
+    });
+  } catch (error) {
+    loading.textContent = "Unable to load matches. Please try again later.";
+  }
+}
+
+loadMatches();
 </script>
 </body>
 </html>

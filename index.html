@@ -189,9 +189,16 @@ async function loadMatches() {
     }
 
     loading.textContent = "";
-    const activeMatches = matches.filter(match =>
+const activeMatches = matches.filter(match =>
   ["TIMED", "IN_PLAY", "PAUSED", "SCHEDULED"].includes(match.status)
 );
+activeMatches.sort((a, b) => {
+  const aLive = ["IN_PLAY", "PAUSED"].includes(a.status);
+  const bLive = ["IN_PLAY", "PAUSED"].includes(b.status);
+  return Number(bLive) - Number(aLive);
+});
+
+let currentGroup = "";
     activeMatches.forEach(match => {
       const card = document.createElement("div");
       card.className = "match-card";
@@ -204,7 +211,7 @@ async function loadMatches() {
       const league = match.competition?.name || "";
       const country = match.area?.name || "";
       const status = match.status || "";
-
+const isLive = ["IN_PLAY", "PAUSED"].includes(status);
       let score = "";
       if (match.score?.fullTime) {
         const h = match.score.fullTime.home;
@@ -213,7 +220,9 @@ async function loadMatches() {
       }
 
       card.innerHTML = `
-        <div class="league">${league} · ${country}</div>
+      <div class="league">
+  ${isLive ? "🔴 LIVE · " : ""}${league} · ${country}
+</div>
         <div class="teams">${home} ${score ? score : "vs"} ${away}</div>
         <div class="details">${dateText} · ${status}</div>
       `;

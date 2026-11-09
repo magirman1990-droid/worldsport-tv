@@ -91,22 +91,8 @@ if (fixturesData.errors && Object.keys(fixturesData.errors).length > 0) {
   }
 }
 
-// Senaste 7 dagarna
-await searchDays(-7, 0);
-
-// Kommande 8 dagar
-await searchDays(0, 8);
-
-// Om inga kommande matcher hittas, sök vidare
-const hasUpcoming = teamMatches.some(match =>
-  ["NS", "1H", "HT", "2H", "ET", "BT", "P"].includes(
-    match.fixture.status.short
-  )
-);
-
-if (!hasUpcoming) {
-  await searchDays(8, 30);
-}
+// Sök endast datum som gratisplanen tillåter
+await searchDays(-1, 2);
 
         
       return {

@@ -205,21 +205,30 @@ render();
   let selectedMatchDate = "all";
 
 function getOsloDate(date) {
-  return new Intl.DateTimeFormat("en-CA", {
+  const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Europe/Oslo",
     year: "numeric",
     month: "2-digit",
     day: "2-digit"
-  }).format(date);
+  }).formatToParts(date);
+
+  const year = parts.find(p => p.type === "year").value;
+  const month = parts.find(p => p.type === "month").value;
+  const day = parts.find(p => p.type === "day").value;
+
+  return `${year}-${month}-${day}`;
 }
 
 function matchesSelectedDate(matchDate) {
   if (selectedMatchDate === "all") return true;
+  if (!matchDate) return false;
 
   const today = getOsloDate(new Date());
-  const tomorrowDate = new Date();
-  tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+
+  const [year, month, day] = today.split("-").map(Number);
+  const tomorrowDate = new Date(Date.UTC(year, month - 1, day + 1));
   const tomorrow = getOsloDate(tomorrowDate);
+
   const matchDay = getOsloDate(new Date(matchDate));
 
   if (selectedMatchDate === "today") return matchDay === today;

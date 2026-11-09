@@ -317,9 +317,11 @@ list.innerHTML = "";
       return;
     }
 
-    loading.textContent = "";
+    const teamSearchActive = document.getElementById("team-search")?.value.trim();
+
 const activeMatches = matches.filter(match =>
-  ["TIMED", "IN_PLAY", "PAUSED", "SCHEDULED"].includes(match.status)
+  ["TIMED", "IN_PLAY", "PAUSED", "SCHEDULED"].includes(match.status) ||
+  (teamSearchActive && match.status === "FINISHED")
 );
 activeMatches.sort((a, b) => {
   const aLive = ["IN_PLAY", "PAUSED"].includes(a.status);
@@ -334,8 +336,12 @@ const liveMatches = activeMatches.filter(match =>
   ["IN_PLAY", "PAUSED"].includes(match.status)
 );
 
+const finishedMatches = activeMatches.filter(match =>
+  match.status === "FINISHED"
+);
+
 const upcomingMatches = activeMatches.filter(match =>
-  !["IN_PLAY", "PAUSED"].includes(match.status)
+  !["IN_PLAY", "PAUSED", "FINISHED"].includes(match.status)
 );
 
 function showGroup(title, matches, live = false) {
@@ -397,14 +403,18 @@ function applyCountryFilter() {
   ).filter(match => matchesSelectedDate(match.utcDate) && matchesSearch(match));
 
   const filteredUpcoming = (selectedCountry === "all"
-    ? upcomingMatches
-    : upcomingMatches.filter(match => match.area?.name === selectedCountry)
-  ).filter(match => matchesSelectedDate(match.utcDate) && matchesSearch(match));
-
+  ? upcomingMatches
+  : upcomingMatches.filter(match => match.area?.name === selectedCountry)
+).filter(match => matchesSelectedDate(match.utcDate) && matchesSearch(match));
+  const filteredFinished = (selectedCountry === "all"
+  ? finishedMatches
+  : finishedMatches.filter(match => match.area?.name === selectedCountry)
+).filter(match => matchesSelectedDate(match.utcDate) && matchesSearch(match));
   list.innerHTML = "";
 
   showGroup("🔴 LIVE NOW", filteredLive, true);
   showGroup("📅 UPCOMING MATCHES", filteredUpcoming);
+  showGroup("🏁 RECENT RESULTS", filteredFinished);
 }
 
 

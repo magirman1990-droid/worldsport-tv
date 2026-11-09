@@ -42,7 +42,10 @@ exports.handler = async function () {
 
     return {
       statusCode: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: {
+  "Content-Type": "application/json",
+  "Netlify-CDN-Cache-Control": "public, durable, s-maxage=300, stale-while-revalidate=60"
+},
       body: JSON.stringify({
         results: matches.length,
         response: matches

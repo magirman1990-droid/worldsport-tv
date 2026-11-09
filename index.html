@@ -187,11 +187,47 @@ render();
     <option value="Portugal">Portugal</option>
   </select>
 </div>
-  <p id="match-loading">Loading matches...</p>
-  <div id="match-list"></div>
+  <div id="date-filters" style="margin:20px 0;">
+  <label for="date-filter">📅 Choose date:</label>
+  <select id="date-filter">
+    <option value="all">All matches</option>
+    <option value="today">Today</option>
+    <option value="tomorrow">Tomorrow</option>
+    <option value="upcoming">Upcoming matches</option>
+  </select>
+</div>
+
+<p id="match-loading">Loading matches...</p>
+<div id="match-list"></div>
 </section>
 
 <script>
+  let selectedMatchDate = "all";
+
+function getOsloDate(date) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Oslo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).format(date);
+}
+
+function matchesSelectedDate(matchDate) {
+  if (selectedMatchDate === "all") return true;
+
+  const today = getOsloDate(new Date());
+  const tomorrowDate = new Date();
+  tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+  const tomorrow = getOsloDate(tomorrowDate);
+  const matchDay = getOsloDate(new Date(matchDate));
+
+  if (selectedMatchDate === "today") return matchDay === today;
+  if (selectedMatchDate === "tomorrow") return matchDay === tomorrow;
+  if (selectedMatchDate === "upcoming") return matchDay >= today;
+
+  return true;
+}
 async function loadMatches() {
   const loading = document.getElementById("match-loading");
   const list = document.getElementById("match-list");
@@ -220,14 +256,22 @@ activeMatches.sort((a, b) => {
   return Number(bLive) - Number(aLive);
 });
 
+
 let currentGroup = "";
-const liveMatches = activeMatches.filter(match =>
+
+const dateFilteredMatches = activeMatches.filter(match =>
+  matchesSelectedDate(match.utcDate)
+);
+
+const liveMatches = dateFilteredMatches.filter(match =>
   ["IN_PLAY", "PAUSED"].includes(match.status)
 );
 
-const upcomingMatches = activeMatches.filter(match =>
+const upcomingMatches = dateFilteredMatches.filter(match =>
   !["IN_PLAY", "PAUSED"].includes(match.status)
 );
+
+function showGroup(title, matches, live = false) {
     function showGroup(title, matches, live = false) {
   if (matches.length === 0) return;
 

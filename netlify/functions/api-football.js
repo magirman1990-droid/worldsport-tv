@@ -64,22 +64,18 @@ const m = parts.find(p => p.type === "month").value;
 const d = parts.find(p => p.type === "day").value;
 
 const start = Date.UTC(y, m - 1, d);
-const teamMatches = [];
 
-for (let i = 0; i < 8; i++) {
-  const date = new Date(start + i * 86400000)
-    .toISOString().slice(0, 10);
+const from = new Date(start).toISOString().slice(0, 10);
+const to = new Date(start + 29 * 86400000)
+  .toISOString().slice(0, 10);
 
-  const fixturesUrl =
-    `https://v3.football.api-sports.io/fixtures?team=${selectedTeam.team.id}&date=${date}&timezone=Europe%2FOslo`;
+const fixturesUrl =
+  `https://v3.football.api-sports.io/fixtures?team=${selectedTeam.team.id}&from=${from}&to=${to}&timezone=Europe%2FOslo`;
 
-  const fixturesRes = await fetch(fixturesUrl, { headers });
-  const fixturesData = await fixturesRes.json();
+const fixturesRes = await fetch(fixturesUrl, { headers });
+const fixturesData = await fixturesRes.json();
 
-  if (fixturesData.response) {
-    teamMatches.push(...fixturesData.response);
-  }
-}
+const teamMatches = fixturesData.response || [];
         
       return {
   statusCode: 200,

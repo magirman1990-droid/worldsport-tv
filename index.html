@@ -272,7 +272,6 @@ const upcomingMatches = dateFilteredMatches.filter(match =>
 );
 
 function showGroup(title, matches, live = false) {
-    function showGroup(title, matches, live = false) {
   if (matches.length === 0) return;
 
   const heading = document.createElement("h2");
@@ -403,7 +402,8 @@ const filteredMatches = matches.filter(m => {
       m.home.toLowerCase().includes(term) ||
       m.away.toLowerCase().includes(term) ||
       m.competition.toLowerCase().includes(term) ||
-      m.country.toLowerCase().includes(term))
+      m.country.toLowerCase().includes(term)) &&
+    matchesSelectedDate(m.time)
   );
 });
     const liveStatuses = ["Q1", "Q2", "Q3", "Q4", "OT", "HT", "BT"];
@@ -516,6 +516,19 @@ document.getElementById("sport-filter").addEventListener("change", function() {
   if (this.value === "Basketball") {
     loadBasketballMatches();
   } else if (this.value === "Football") {
+    loadMatches();
+  }
+});
+  document.getElementById("date-filter").addEventListener("change", function() {
+  selectedMatchDate = this.value;
+
+  if (document.getElementById("sport-filter").value === "Basketball") {
+    const country = document.getElementById("basket-country")?.value || "all";
+    const league = document.getElementById("basket-league")?.value || "all";
+    const search = document.getElementById("basket-search")?.value || "";
+
+    loadBasketballMatches(country, league, search);
+  } else {
     loadMatches();
   }
 });

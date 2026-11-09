@@ -259,15 +259,11 @@ activeMatches.sort((a, b) => {
 
 let currentGroup = "";
 
-const dateFilteredMatches = activeMatches.filter(match =>
-  matchesSelectedDate(match.utcDate)
-);
-
-const liveMatches = dateFilteredMatches.filter(match =>
+const liveMatches = activeMatches.filter(match =>
   ["IN_PLAY", "PAUSED"].includes(match.status)
 );
 
-const upcomingMatches = dateFilteredMatches.filter(match =>
+const upcomingMatches = activeMatches.filter(match =>
   !["IN_PLAY", "PAUSED"].includes(match.status)
 );
 
@@ -322,10 +318,18 @@ function applyCountryFilter() {
     ? upcomingMatches
     : upcomingMatches.filter(match => match.area?.name === selectedCountry);
 
+  const dateFilteredLive = filteredLive.filter(match =>
+    matchesSelectedDate(match.utcDate)
+  );
+
+  const dateFilteredUpcoming = filteredUpcoming.filter(match =>
+    matchesSelectedDate(match.utcDate)
+  );
+
   list.innerHTML = "";
 
-  showGroup("🔴 LIVE NOW", filteredLive, true);
-  showGroup("📅 UPCOMING MATCHES", filteredUpcoming);
+  showGroup("🔴 LIVE NOW", dateFilteredLive, true);
+  showGroup("📅 UPCOMING MATCHES", dateFilteredUpcoming);
 }
 
 countryFilter.addEventListener("change", applyCountryFilter);

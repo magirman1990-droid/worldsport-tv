@@ -253,13 +253,50 @@ async function loadMatches() {
   const list = document.getElementById("match-list");
 
   try {
-    const response = await fetch("/.netlify/functions/matches");
-    if (!response.ok) throw new Error("Could not load matches");
+    let matches = [];
 
-    const data = await response.json();
-    list.innerHTML = "";
+try {
+  const response = await fetch("/.netlify/functions/api-football");
+  if (!response.ok) throw new Error("New API unavailable");
 
-    const matches = data.matches || [];
+  const data = await response.json();
+
+  matches = (data.response || []).map(m => {
+    const s = m.fixture.status.short;
+
+    let status = "SCHEDULED";
+
+    if (["1H", "HT", "2H", "ET", "BT", "P"].includes(s)) {
+      status = "IN_PLAY";
+    } else if (s === "NS") {
+      status = "TIMED";
+    } else if (s === "FT" || s === "AET" || s === "PEN") {
+      status = "FINISHED";
+    }
+
+    return {
+      status,
+      utcDate: m.fixture.date,
+      homeTeam: m.teams.home,
+      awayTeam: m.teams.away,
+      competition: { name: m.league.name },
+      area: { name: m.league.country },
+      score: {
+        fullTime: {
+          home: m.goals.home,
+          away: m.goals.away
+        }
+      }
+    };
+  });
+} catch (error) {
+  const response = await fetch("/.netlify/functions/matches");
+  if (!response.ok) throw error;
+  const data = await response.json();
+  matches = data.matches || [];
+}
+
+list.innerHTML = "";
 
     if (matches.length === 0) {
       loading.textContent = "No matches found.";

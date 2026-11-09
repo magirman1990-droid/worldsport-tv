@@ -52,28 +52,44 @@ exports.handler = async function (event) {
           t.team.name.toLowerCase() === search
         ) || teamData.response[0];
 
-      const year = new Date().toLocaleString("en-US", {
-        timeZone: "Europe/Oslo",
-        year: "numeric"
-      });
+      const parts = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Europe/Oslo",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit"
+}).formatToParts(new Date());
 
-      const fixturesUrl =
-        `https://v3.football.api-sports.io/fixtures?team=${selectedTeam.team.id}&season=${year}&timezone=Europe%2FOslo`;
+const y = parts.find(p => p.type === "year").value;
+const m = parts.find(p => p.type === "month").value;
+const d = parts.find(p => p.type === "day").value;
 
-      const fixturesRes = await fetch(fixturesUrl, { headers });
-      const fixturesData = await fixturesRes.json();
+const start = Date.UTC(y, m - 1, d);
+const teamMatches = [];
 
+for (let i = 0; i < 8; i++) {
+  const date = new Date(start + i * 86400000)
+    .toISOString().slice(0, 10);
+
+  const fixturesUrl =
+    `https://v3.football.api-sports.io/fixtures?team=${selectedTeam.team.id}&date=${date}&timezone=Europe%2FOslo`;
+
+  const fixturesRes = await fetch(fixturesUrl, { headers });
+  const fixturesData = await fixturesRes.json();
+
+  if (fixturesData.response) {
+    teamMatches.push(...fixturesData.response);
+  }
+}
+        
       return {
-        statusCode: 200,
-        headers: responseHeaders,
-        body: JSON.stringify({
-  team: selectedTeam.team.name,
-  teamErrors: teamData.errors,
-  fixtureErrors: fixturesData.errors,
-  results: fixturesData.results || 0,
-  response: fixturesData.response || []
-})
-      };
+  statusCode: 200,
+  headers: responseHeaders,
+  body: JSON.stringify({
+    team: selectedTeam.team.name,
+    results: teamMatches.length,
+    response: teamMatches
+  })
+};
     }
 
     // VANLIG MATCHHÄMTNING

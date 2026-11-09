@@ -263,7 +263,13 @@ async function loadMatches() {
     let matches = [];
 
 try {
-  const response = await fetch("/.netlify/functions/api-football");
+  const teamSearch = document.getElementById("team-search")?.value.trim();
+
+const apiUrl = teamSearch
+  ? `/.netlify/functions/api-football?team=${encodeURIComponent(teamSearch)}`
+  : "/.netlify/functions/api-football";
+
+const response = await fetch(apiUrl);
   if (!response.ok) throw new Error("New API unavailable");
 
   const data = await response.json();

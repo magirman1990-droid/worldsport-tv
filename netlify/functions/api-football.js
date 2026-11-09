@@ -67,10 +67,12 @@ exports.handler = async function (event) {
         statusCode: 200,
         headers: responseHeaders,
         body: JSON.stringify({
-          team: selectedTeam.team.name,
-          results: fixturesData.results || 0,
-          response: fixturesData.response || []
-        })
+  team: selectedTeam.team.name,
+  teamErrors: teamData.errors,
+  fixtureErrors: fixturesData.errors,
+  results: fixturesData.results || 0,
+  response: fixturesData.response || []
+})
       };
     }
 

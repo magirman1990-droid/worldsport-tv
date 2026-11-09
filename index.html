@@ -409,7 +409,22 @@ function applyCountryFilter() {
 
 
 countryFilter.addEventListener("change", applyCountryFilter);
-    document.getElementById("team-search").addEventListener("input", loadMatches);
+    let searchTimer;
+
+document.getElementById("team-search").addEventListener("input", () => {
+  clearTimeout(searchTimer);
+
+  const query = document.getElementById("team-search").value.trim();
+
+  if (query.length === 0) {
+    loadMatches();
+    return;
+  }
+
+  if (query.length < 3) return;
+
+  searchTimer = setTimeout(loadMatches, 700);
+});
 applyCountryFilter();
   } catch (error) {
     loading.textContent = "Unable to load matches. Please try again later.";

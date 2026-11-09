@@ -196,7 +196,14 @@ render();
     <option value="upcoming">Upcoming matches</option>
   </select>
 </div>
-
+<div style="margin:20px 0;">
+  <input
+    type="text"
+    id="team-search"
+    placeholder="🔍 Search team, e.g. Arsenal..."
+    style="width:100%; padding:12px; border-radius:8px;"
+  >
+</div>
 <p id="match-loading">Loading matches...</p>
 <div id="match-list"></div>
 </section>
@@ -367,30 +374,36 @@ const countryFilter = document.getElementById("country-filter");
 
 function applyCountryFilter() {
   const selectedCountry = countryFilter.value;
+  const searchInput = document.getElementById("team-search");
+  const searchText = searchInput.value.toLowerCase().trim();
 
-  const filteredLive = selectedCountry === "all"
+  const matchesSearch = match => {
+    const home = match.homeTeam?.name || "";
+    const away = match.awayTeam?.name || "";
+
+    return home.toLowerCase().includes(searchText) ||
+           away.toLowerCase().includes(searchText);
+  };
+
+  const filteredLive = (selectedCountry === "all"
     ? liveMatches
-    : liveMatches.filter(match => match.area?.name === selectedCountry);
+    : liveMatches.filter(match => match.area?.name === selectedCountry)
+  ).filter(match => matchesSelectedDate(match.utcDate) && matchesSearch(match));
 
-  const filteredUpcoming = selectedCountry === "all"
+  const filteredUpcoming = (selectedCountry === "all"
     ? upcomingMatches
-    : upcomingMatches.filter(match => match.area?.name === selectedCountry);
-
-  const dateFilteredLive = filteredLive.filter(match =>
-    matchesSelectedDate(match.utcDate)
-  );
-
-  const dateFilteredUpcoming = filteredUpcoming.filter(match =>
-    matchesSelectedDate(match.utcDate)
-  );
+    : upcomingMatches.filter(match => match.area?.name === selectedCountry)
+  ).filter(match => matchesSelectedDate(match.utcDate) && matchesSearch(match));
 
   list.innerHTML = "";
 
-  showGroup("🔴 LIVE NOW", dateFilteredLive, true);
-  showGroup("📅 UPCOMING MATCHES", dateFilteredUpcoming);
+  showGroup("🔴 LIVE NOW", filteredLive, true);
+  showGroup("📅 UPCOMING MATCHES", filteredUpcoming);
 }
 
+
 countryFilter.addEventListener("change", applyCountryFilter);
+    document.getElementById("team-search").addEventListener("input", applyCountryFilter);
 applyCountryFilter();
   } catch (error) {
     loading.textContent = "Unable to load matches. Please try again later.";

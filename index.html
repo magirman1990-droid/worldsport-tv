@@ -357,7 +357,7 @@ function showGroup(title, matches, live = false) {
     card.innerHTML = `
       <div class="league">${live ? "🔴 LIVE · " : ""}${league} · ${country}</div>
       <div class="teams">${home} ${score || "vs"} ${away}</div>
-      <div class="details">${dateText} · ${status}</div>
+      <div class="details">${dateText} · ${live && match.elapsed != null ? `LIVE · ${match.elapsed}'` : status}</div>
     `;
 
     list.appendChild(card);

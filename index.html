@@ -205,19 +205,6 @@ render();
   let selectedMatchDate = "all";
 
 function getOsloDate(date) {
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Europe/Oslo",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit"
-  }).formatToParts(date);
-
-  const year = parts.find(p => p.type === "year").value;
-  const month = parts.find(p => p.type === "month").value;
-  const day = parts.find(p => p.type === "day").value;
-
-  return `${year}-${month}-${day}`;
-}
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "Europe/Oslo",
     year: "numeric",
@@ -272,15 +259,8 @@ activeMatches.sort((a, b) => {
 
 let currentGroup = "";
 
-const dateFilteredMatches = activeMatches.filter(match => {
-  if (!match.utcDate) return false;
-
-  const matchDate = new Date(match.utcDate);
-
-  if (isNaN(matchDate.getTime())) return false;
-
-  return matchesSelectedDate(matchDate);
-});
+const dateFilteredMatches = activeMatches.filter(match =>
+  matchesSelectedDate(match.utcDate)
 );
 
 const liveMatches = dateFilteredMatches.filter(match =>

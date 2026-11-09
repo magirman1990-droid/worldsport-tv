@@ -81,10 +81,12 @@ const teamMatches = fixturesData.response || [];
   statusCode: 200,
   headers: responseHeaders,
   body: JSON.stringify({
-    team: selectedTeam.team.name,
-    results: teamMatches.length,
-    response: teamMatches
-  })
+  team: selectedTeam.team.name,
+  fixtureErrors: fixturesData.errors,
+  parameters: fixturesData.parameters,
+  results: fixturesData.results,
+  response: teamMatches
+})
 };
     }
 

@@ -38,11 +38,16 @@ exports.handler = async function (event) {
       const teamData = await teamRes.json();
 
       if (!teamData.response || teamData.response.length === 0) {
-        return {
-          statusCode: 200,
-          headers: responseHeaders,
-          body: JSON.stringify({ results: 0, response: [] })
-        };
+  return {
+    statusCode: 200,
+    headers: responseHeaders,
+    body: JSON.stringify({
+      teamSearch,
+      results: 0,
+      errors: teamData.errors,
+      response: teamData.response || []
+    })
+  };
       }
 
       const search = teamSearch.toLowerCase();

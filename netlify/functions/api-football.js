@@ -65,7 +65,7 @@ const d = parts.find(p => p.type === "day").value;
 
 const start = Date.UTC(y, m - 1, d);
 const teamMatches = [];
-
+const apiErrors = [];
 async function searchDays(firstDay, lastDay) {
   for (let i = firstDay; i < lastDay; i++) {
     const date = new Date(start + i * 86400000)
@@ -76,7 +76,12 @@ async function searchDays(firstDay, lastDay) {
 
     const fixturesRes = await fetch(fixturesUrl, { headers });
     const fixturesData = await fixturesRes.json();
-
+if (fixturesData.errors && Object.keys(fixturesData.errors).length > 0) {
+  apiErrors.push({
+    date,
+    errors: fixturesData.errors
+  });
+}
     const found = (fixturesData.response || []).filter(match =>
       match.teams.home.id === selectedTeam.team.id ||
       match.teams.away.id === selectedTeam.team.id
@@ -108,10 +113,11 @@ if (!hasUpcoming) {
   statusCode: 200,
   headers: responseHeaders,
   body: JSON.stringify({
-    team: selectedTeam.team.name,
-    results: teamMatches.length,
-    response: teamMatches
-  })
+  team: selectedTeam.team.name,
+  results: teamMatches.length,
+  errors: apiErrors,
+  response: teamMatches
+})
 };
     }
 

@@ -86,11 +86,23 @@ async function searchDays(firstDay, lastDay) {
   }
 }
 
+// Senaste 7 dagarna
+await searchDays(-7, 0);
+
+// Kommande 8 dagar
 await searchDays(0, 8);
 
-if (teamMatches.length === 0) {
+// Om inga kommande matcher hittas, sök vidare
+const hasUpcoming = teamMatches.some(match =>
+  ["NS", "1H", "HT", "2H", "ET", "BT", "P"].includes(
+    match.fixture.status.short
+  )
+);
+
+if (!hasUpcoming) {
   await searchDays(8, 30);
 }
+
         
       return {
   statusCode: 200,

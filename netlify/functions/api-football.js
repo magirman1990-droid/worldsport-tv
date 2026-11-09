@@ -33,7 +33,7 @@ exports.handler = async function () {
     const dateTo = getOsloDate(end);
 
     const url =
-  `https://v3.football.api-sports.io/fixtures?date=${dateFrom}&timezone=Europe%2FOslo`;
+  `https://v3.football.api-sports.io/fixtures?from=${dateFrom}&to=${dateTo}&timezone=Europe%2FOslo`;
 
     const response = await fetch(url, {
       headers: {

@@ -219,24 +219,35 @@ function getOsloDate(date) {
   return `${year}-${month}-${day}`;
 }
 
+
 function matchesSelectedDate(matchDate) {
   if (selectedMatchDate === "all") return true;
   if (!matchDate) return false;
 
-  const today = getOsloDate(new Date());
-
-  const [year, month, day] = today.split("-").map(Number);
-  const tomorrowDate = new Date(Date.UTC(year, month - 1, day + 1));
-  const tomorrow = getOsloDate(tomorrowDate);
-
   const matchDay = getOsloDate(new Date(matchDate));
 
-  if (selectedMatchDate === "today") return matchDay === today;
-  if (selectedMatchDate === "tomorrow") return matchDay === tomorrow;
-  if (selectedMatchDate === "upcoming") return matchDay >= today;
+  const now = new Date();
+  const today = getOsloDate(now);
+
+  const tomorrowDate = new Date(now);
+  tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+  const tomorrow = getOsloDate(tomorrowDate);
+
+  if (selectedMatchDate === "today") {
+    return matchDay === today;
+  }
+
+  if (selectedMatchDate === "tomorrow") {
+    return matchDay === tomorrow;
+  }
+
+  if (selectedMatchDate === "upcoming") {
+    return matchDay >= today;
+  }
 
   return true;
 }
+  
 async function loadMatches() {
   const loading = document.getElementById("match-loading");
   const list = document.getElementById("match-list");

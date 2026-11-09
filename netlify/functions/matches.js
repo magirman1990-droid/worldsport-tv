@@ -13,7 +13,7 @@ exports.handler = async function () {
   const dateFrom = today.toISOString().slice(0, 10);
 
   const future = new Date();
-  future.setDate(future.getDate() + 7);
+  future.setDate(future.getDate() + 10);
   const dateTo = future.toISOString().slice(0, 10);
 
   try {

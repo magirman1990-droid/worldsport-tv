@@ -409,7 +409,7 @@ function applyCountryFilter() {
 
 
 countryFilter.addEventListener("change", applyCountryFilter);
-    document.getElementById("team-search").addEventListener("input", applyCountryFilter);
+    document.getElementById("team-search").addEventListener("input", loadMatches);
 applyCountryFilter();
   } catch (error) {
     loading.textContent = "Unable to load matches. Please try again later.";

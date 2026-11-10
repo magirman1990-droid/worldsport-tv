@@ -15,7 +15,7 @@ exports.handler = async function (event) {
   const responseHeaders = {
     "Content-Type": "application/json",
     "Netlify-CDN-Cache-Control":
-      "public, durable, s-maxage=300, stale-while-revalidate=60"
+      "public, durable, s-maxage=900, stale-while-revalidate=60"
   };
 
   try {

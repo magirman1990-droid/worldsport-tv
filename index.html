@@ -254,7 +254,7 @@ function matchesSelectedDate(matchDate) {
 
   return true;
 }
-  
+  let searchTimer;
 async function loadMatches() {
   const loading = document.getElementById("match-loading");
   const list = document.getElementById("match-list");
@@ -419,7 +419,6 @@ function applyCountryFilter() {
 
 
 countryFilter.addEventListener("change", applyCountryFilter);
-    let searchTimer;
 
 document.getElementById("team-search").addEventListener("input", () => {
   clearTimeout(searchTimer);
